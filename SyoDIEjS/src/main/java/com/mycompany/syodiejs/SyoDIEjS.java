@@ -2,47 +2,51 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
 
-package com.mycompany.gyr0ptmr;
+package com.mycompany.syodiejs;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class GYR0ptMR {
+public class SyoDIEjS {
 
     public static void main(String[] args) throws Exception {
-        // rest + http
         String student = "B22DCCN718";
-        String qCode = "gYR0ptMR";
-        String base = "http://36.50.135.242:2230/api/rest/data";
+        String qCode = "SyoDIEjS";
+        String base = "http://36.50.135.242:2230/api/rest/character";
         HttpClient client = HttpClient.newHttpClient();
         
-        // lay data
-        String url = base + "?studentCode=" + student + "&qCode=" + qCode;
+        String url = base + "?studentCode="  +student
+                + "&qCode=" + qCode;
         HttpRequest req = HttpRequest.newBuilder(URI.create(url)).GET().build();
         HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
         String resData = res.body();
-        
-        // parse JSon
+        System.err.println(res.body());
         JSONObject json = new JSONObject(resData);
         String requestId = json.getString("requestId");
-        JSONArray arr = json.getJSONArray("data");
+        String string = json.getString("data");
         
-        // cal
-        long sum = 0;
-        for (int i=0;i<arr.length();++i) sum += arr.getInt(i);
+        // 
+        //System.err.println(string);
+        String[] arr = string.split(" ");
+        for(int i =0;i<arr.length;++i) {
+            if (arr[i].contains("user=")) arr[i] = "user=[EMAIL]";
+            if (arr[i].contains("phone=")) arr[i] = "phone=[PHONE]";
+            if (arr[i].contains("token=")) arr[i] = "token=[TOKEN]";
+        }
         
-        // submit
+        String ketqua = String.join(" ", arr);
+        System.out.println(ketqua);
         JSONObject submit = new JSONObject();
         submit.put("studentCode", student);
         submit.put("qCode", qCode);
         submit.put("requestId", requestId);
-        submit.put("answer", sum);
-        
+        submit.put("answer", ketqua);
         HttpRequest reqS = HttpRequest.newBuilder(URI.create(base + "/submit")).POST(HttpRequest.BodyPublishers.ofString(submit.toString())).build();
         HttpResponse<String> resS = client.send(reqS, HttpResponse.BodyHandlers.ofString());
-        System.err.println(resS.body());
+        System.out.println(resS.body());
     }
 }
